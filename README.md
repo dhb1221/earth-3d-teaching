@@ -27,6 +27,20 @@ M1 与 M5 支持 **侧视图 / 北极俯视 / 南极俯视** 三种视角切换�
   `?model=M1..M5&date=172&time=12&lat=40&lon=116.4&tz=8&view=side|north|south&play=1&night=0&clouds=0&graticule=0&terminator=0&zones=1&quiz=1&nosplash=1`
   例：`dist/earth-3d.html?model=M1&date=172&time=12&lat=23.5&lon=0&view=north`
 
+## 预览
+
+太阳视运动平面图（M4）
+
+![M4 桌面](docs/preview-M4-desktop.png)
+
+北极上空光照图（M5）
+
+![M5 桌面](docs/preview-M5-desktop.png)
+
+手机端（M4）
+
+![M4 手机](docs/preview-M4-mobile.png)
+
 ## 数据与算法
 
 - 太阳赤纬：`δ = 23.44° × sin((360/365)(284 + N)°)`（N 为一年中的第几天）
