@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#05070f" />
+<title>3D 地球 · 地球的运动 | 高中地理教具</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="stage">
+  <canvas id="gl"></canvas>
+  <canvas id="c2d"></canvas>
+  <div id="loading"><div class="spin"></div><span id="loadText">加载地球贴图…</span></div>
+  <div id="toast"></div>
+  <div id="hint">拖动旋转 · 滚轮/双指缩放 · 点击地球设置观测点</div>
+</div>
+
+<header id="topbar">
+  <div class="bar-left">
+    <span class="logo">🌍</span>
+    <nav class="tabs" id="modelTabs">
+      <button data-model="M1" class="on">空间模型</button>
+      <button data-model="M2">天球模型</button>
+      <button data-model="M3">地面视角</button>
+      <button data-model="M4">平面轨迹</button>
+      <button data-model="M5">光照图</button>
+    </nav>
+  </div>
+  <div class="bar-right">
+    <div class="views" id="viewBtns">
+      <button data-view="side" class="on">侧视</button>
+      <button data-view="north">北极俯视</button>
+      <button data-view="south">南极俯视</button>
+    </div>
+    <button id="btnQuiz" class="icon" title="考点练习">✎</button>
+    <button id="btnPanel" class="icon" title="时间与观测点">☰</button>
+  </div>
+</header>
+
+<aside id="panel">
+  <div class="panel-head"><b>时间与观测点</b><button id="btnPanelClose" class="icon sm">✕</button></div>
+
+  <section>
+    <h3>时间</h3>
+    <div class="row">
+      <label>日期</label>
+      <input type="range" id="dateRange" min="1" max="365" value="173" />
+      <output id="dateOut">6月22日</output>
+    </div>
+    <div class="row">
+      <label>时刻</label>
+      <input type="range" id="timeRange" min="0" max="24" step="0.05" value="12" />
+      <output id="timeOut">12:00</output>
+    </div>
+    <div class="row">
+      <label>时区</label>
+      <select id="tzSel">
+        <option value="8">北京时间（东八区）</option>
+        <option value="0">世界时（UTC）</option>
+        <option value="-5">西五区</option>
+      </select>
+      <output></output>
+    </div>
+    <div class="chips">
+      <button data-preset="chunfen">春分</button>
+      <button data-preset="xiazhi">夏至</button>
+      <button data-preset="qiufen">秋分</button>
+      <button data-preset="dongzhi">冬至</button>
+      <button data-preset="today">今天</button>
+    </div>
+    <div class="row play">
+      <button id="playBtn" class="playbtn">▶ 播放</button>
+      <select id="speedSel">
+        <option value="1">1×（1 小时/秒）</option>
+        <option value="10" selected>10×</option>
+        <option value="60">60×</option>
+      </select>
+    </div>
+  </section>
+
+  <section>
+    <h3>观测点</h3>
+    <div class="row">
+      <label>纬度</label>
+      <input type="range" id="latRange" min="-90" max="90" step="0.5" value="40" />
+      <output id="latOut">40.0°N</output>
+    </div>
+    <div class="row">
+      <label>经度</label>
+      <input type="range" id="lonRange" min="-180" max="180" step="1" value="116" />
+      <output id="lonOut">116°E</output>
+    </div>
+    <div class="chips">
+      <button data-place="40,116.4">北京</button>
+      <button data-place="0,0">赤道</button>
+      <button data-place="23.44,0">北回归线</button>
+      <button data-place="66.56,0">北极圈</button>
+      <button data-place="-90,0">南极点</button>
+    </div>
+    <p class="tip">提示：在「空间模型」里直接点击地球，可以把观测点放到那里。</p>
+  </section>
+
+  <section>
+    <h3>实时数据</h3>
+    <div id="readout" class="readout"></div>
+  </section>
+
+  <section>
+    <h3>显示</h3>
+    <div class="toggles">
+      <label><input type="checkbox" data-toggle="graticule" checked />经纬网</label>
+      <label><input type="checkbox" data-toggle="terminator" checked />晨昏线</label>
+      <label><input type="checkbox" data-toggle="clouds" checked />云层</label>
+      <label><input type="checkbox" data-toggle="nightLights" checked />夜景灯光</label>
+      <label><input type="checkbox" data-toggle="fiveZones" />五带</label>
+    </div>
+    <p class="tip" id="modelTip">空间模型：宇宙视角看地球，太阳光平行射来。</p>
+  </section>
+</aside>
+
+<aside id="quizPanel">
+  <div class="panel-head"><b>考点练习</b><button id="quizClose" class="icon sm">✕</button></div>
+  <div id="quizList"></div>
+  <div class="quiz-foot">
+    <button id="quizRefresh">换一批</button>
+    <span class="tip">题目随当前日期/时刻/观测点实时生成</span>
+  </div>
+</aside>
+
+<div id="legend" class="legend"></div>
+
+<script src="vendor/three.min.js"></script>
+<script src="src/astro.js"></script>
+<script src="src/helpers.js"></script>
+<script src="src/m1-earth.js"></script>
+<script src="src/m2-sky.js"></script>
+<script src="src/m3-ground.js"></script>
+<script src="src/m4-chart.js"></script>
+<script src="src/m5-cross.js"></script>
+<script src="src/quiz.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>
