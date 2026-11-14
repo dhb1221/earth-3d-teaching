@@ -75,6 +75,7 @@
 
   function cacheDom() {
     dom.stage = $id('stage');
+    dom.topbar = $id('topbar');
     dom.gl = $id('gl');
     dom.c2d = $id('c2d');
     dom.loading = $id('loading');
@@ -131,6 +132,14 @@
 
   function loadTextures(done) {
     var assets = global.__ASSETS__ || null;
+    // ?fast=1：跳过贴图（用纯色占位），自动化测试/弱设备快速启动
+    if (/[?&]fast=1/.test(global.location.search)) {
+      TEXTURES.day = makeFlat('#27476e');
+      TEXTURES.night = makeFlat('#04060c');
+      TEXTURES.specular = makeFlat('#000000');
+      setTimeout(done, 0);
+      return;
+    }
     var keys = Object.keys(TEX_FILES);
     var left = keys.length;
     var finished = false;
@@ -167,6 +176,8 @@
   /* ---------------- 尺寸 ---------------- */
   function measure() {
     DPR = Math.min(global.devicePixelRatio || 1, 2);
+    // 顶栏是 fixed 的，2D 模型画标题时要知道让开多少
+    if (dom.topbar) S._insetTop = Math.round(dom.topbar.getBoundingClientRect().height) + 10;
     W = dom.stage.clientWidth || global.innerWidth;
     Hh = dom.stage.clientHeight || global.innerHeight;
     if (renderer) {
@@ -656,6 +667,12 @@
     if ((v = num('lon', -180, 180)) !== null) S.observerLon = v;
     if ((v = num('tz', -12, 14)) !== null) S.tz = Math.round(v);
     if (q.view && /^(side|north|south)$/.test(q.view)) S.view = q.view;
+    if (q.debug === '1' && dom.loadText) {
+      dom.loadText.textContent = 'W=' + W + ' H=' + Hh + ' inset=' + S._insetTop +
+        ' stage=' + (dom.stage && dom.stage.clientWidth) + ' docW=' + document.documentElement.clientWidth +
+        ' scrollW=' + document.documentElement.scrollWidth;
+      dom.loading.classList.remove('hide');
+    }
     if (q.model && MODEL_META[q.model]) S.model = q.model;
     if (q.play === '1' || q.play === 'true') S.playing = true;
     if (q.night === '0') S.show.nightLights = false;
@@ -735,6 +752,9 @@
       wirePick();
       updateAll();
       requestAnimationFrame(frame);
+      // 手机首帧前布局可能还没稳定，量一次尺寸再重绘，避免 2D 图被裁
+      global.addEventListener('load', function () { resizeAll(); });
+      setTimeout(function () { resizeAll(); updateAll(); }, 260);
 
       setTimeout(function () { document.body.classList.add('no-hint'); }, 6500);
       // 桌面：面板默认展开；手机：收起（点 ☰ 打开）
