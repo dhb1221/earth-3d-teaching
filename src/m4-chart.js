@@ -305,7 +305,8 @@
         var term = null;
         try { term = A.solarTerm(N); } catch (e3) { term = null; }
         var title = '太阳视运动平面图 · ' + latLabel(lat) + ' · ' + dateTxt + (term ? ' · ' + term : '');
-        haloText(c2d, title, cx, 22, P.text, 15, 'center', true);
+        var titleY = Math.max(22, num(S._insetTop, 0) + 12);
+        haloText(c2d, title, cx, titleY, P.text, 15, 'center', true);
 
         var dayLenTxt;
         if (info.polarDay) dayLenTxt = '极昼 · 昼长 24 小时';
